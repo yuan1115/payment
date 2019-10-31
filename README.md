@@ -22,7 +22,6 @@
         |- README.md
 
 #### 示例代码
-    '''php
     <?php
     use alipay\Charge;
     
@@ -70,8 +69,6 @@
            
        }
     }
-    '''
-    
 
 ##### 参数说明
 
