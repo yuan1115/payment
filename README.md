@@ -22,6 +22,7 @@
         |- README.md
 
 #### 示例代码
+
     <?php
     use alipay\Charge;
     
@@ -56,18 +57,6 @@
                 exit;
             }
        } 
-
-       public function notify_url(){
-           $this->pay->notify_url();
-           //下面写业务代码
-
-       }
-
-       public function return_url(){
-           $this->pay->return_url();
-           //下面写业务代码
-           
-       }
     }
 
 ##### 参数说明
@@ -98,5 +87,73 @@
 
 #### 异步通知调用
 
+    $config = [
+        'use_sandbox' => true,
+        'app_id'=>'appid',
+        'sign_type' =>'RSA2',
+        'alipay_public_key' => "支付宝公钥",
+        'merchant_private_key' => '应用私钥',
+        'notify_url' =>'http://xxx.com/AliPay/notify_url',
+        'return_url' =>'http://xxx.com/AliPay/return_url'
+    ];
+    $arr = $_POST;
+    $str = is_file('./log.txt')?file_get_contents('./log.txt'):'';
+    $str .= '－－－－－－－－－－－－－－－　开始异步　－－－－－－－－－－－－－－'.PHP_EOL.PHP_EOL;
+    $str .= date("Y-m-d H:i:s").'----->'.json_encode($arr,true).PHP_EOL;
+    try {
+        $pay = new Charge;
+        $res = $pay->notify_url('ali_pc_direct',$arr,$config);
+    } catch (\Exception $th) {
+        $str .= date("Y-m-d H:i:s").'----->'.$th.PHP_EOL;
+        $res = false;
+    }
+    if($res) {    
+        //商户订单号
+        $out_trade_no = $arr['out_trade_no'];
+        //交易状态
+        $trade_status = $arr['trade_status'];
+        if($trade_status == 'TRADE_FINISHED') {
+            
+        }else if ($trade_status == 'TRADE_SUCCESS') {
+            try {
+                $str .= date("Y-m-d H:i:s").'----->success'.PHP_EOL;
+                //付款成功之后，处理业务逻辑
+                //
+                //
+                //end
+            } catch (\Exception $th) {
+                $str .= date("Y-m-d H:i:s").'----->'.$th;
+            }
+        }
+        $str .= date("Y-m-d H:i:s").'----->'.'success'.PHP_EOL;
+        echo "success";	
+    }else {
+        $str .= date("Y-m-d H:i:s").'----->'.'fail'.PHP_EOL;
+        echo "fail";
+    }
+    $str .= PHP_EOL.'－－－－－－－－－－－－－－－　结束异步　－－－－－－－－－－－－－－'.PHP_EOL.PHP_EOL;
+    file_put_contents('./log.txt',$str);
+
 #### 同步通知调用
 
+    $config = [
+        'use_sandbox' => true,
+        'app_id'=>'appid',
+        'sign_type' =>'RSA2',
+        'alipay_public_key' => "支付宝公钥",
+        'merchant_private_key' => '应用私钥',
+        'notify_url' =>'http://xxx.com/AliPay/notify_url',
+        'return_url' =>'http://xxx.com/AliPay/return_url'
+    ];
+    $arr = $_GET;
+    $pay = new Charge;
+    $res = $pay->return_url('ali_pc_direct',$arr,$config);
+    if($res) {
+        $out_trade_no = htmlspecialchars($arr['out_trade_no']);
+        //验证成功回调，业务逻辑
+        //
+        //
+        //end
+    }else {
+        echo "验证失败";
+    }
